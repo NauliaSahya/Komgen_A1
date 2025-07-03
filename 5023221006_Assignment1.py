@@ -1028,8 +1028,8 @@ def main():
             st.subheader("📄 File Information")
             st.write(desc)
             st.write(f"Total Sequence Length: {len(genome_sequence)} bases")
-            st.write("**🧬Complete Genome Sequence:**")
-            st.write(genome_sequence)
+            # st.write("**🧬Complete Genome Sequence:**")
+            # st.write(genome_sequence)
 
             # Statistik urutan
             st.write("**🧪 Sequence Statistic:**")
@@ -2623,14 +2623,14 @@ def main():
                 else:
                     if current:
                         exon_segments.append({
-                            "Start Index": start_idx,
+                            "Start Index": start_idx-1,
                             "End Index": i - 1,
                             "Sequence": ''.join(current),
                             "Length": len(current)
                         })
                         # exon_ranges.append((start_idx, i - 1))
                         # Print per region
-                        line = f"Start[{start_idx}] End[{i}] Length[{len(current)}]: {''.join(current)}"
+                        line = f"Start[{start_idx}] End[{i-1}] Length[{len(current)}]: {''.join(current)}"
                         st.write(line)
                         output_txt.write(line + "\n")
 
@@ -2640,14 +2640,14 @@ def main():
             # Jika ada sisa exon di akhir
             if current:
                 exon_segments.append({
-                    "Start Index": start_idx,
+                    "Start Index": start_idx-1,
                     "End Index": len(path_state) - 1,
                     "Sequence": ''.join(current),
                     "Length": len(current)
                 })
                 # exon_ranges.append((start_idx, len(path_state) - 1))
                 # Print terakhir
-                line = f"Start[{start_idx}] End[{len(path_state)}] Length[{len(current)}]: {''.join(current)}"
+                line = f"Start[{start_idx}] End[{len(path_state)-1}] Length[{len(current)}]: {''.join(current)}"
                 st.write(line)
                 output_txt.write(line + "\n")
             # if exon_segments:
