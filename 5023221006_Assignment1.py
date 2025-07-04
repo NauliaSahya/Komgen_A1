@@ -792,18 +792,18 @@ def main():
             st.dataframe(matrix.style.format("{:.4f}"), use_container_width=True)
 
 
-            # Plot GC+TA dimer
-            gc_dimer_freq = []
-            ta_dimer_freq = []
+            # Plot CG+AT dimer
+            cg_dimer_freq = []
+            at_dimer_freq = []
             for matrix in dimer_freq_matrices:
-                gc = matrix.at['G', 'C'] if 'G' in matrix.index and 'C' in matrix.columns else 0
-                ta = matrix.at['T', 'A'] if 'T' in matrix.index and 'A' in matrix.columns else 0
-                gc_dimer_freq.append(gc)
-                ta_dimer_freq.append(ta)
+                cg = matrix.at['C', 'G'] if 'C' in matrix.index and 'G' in matrix.columns else 0
+                at = matrix.at['A', 'T'] if 'A' in matrix.index and 'T' in matrix.columns else 0
+                cg_dimer_freq.append(cg)
+                at_dimer_freq.append(at)
             fig_dimer_line = go.Figure()
-            fig_dimer_line.add_trace(go.Scatter(y=gc_dimer_freq, mode='lines', name='GC Dimer Frequency'))
-            fig_dimer_line.add_trace(go.Scatter(y=ta_dimer_freq, mode='lines', name='TA Dimer Frequency'))
-            fig_dimer_line.update_layout(title='Dimer Frequencies (GC and TA) per Window',
+            fig_dimer_line.add_trace(go.Scatter(y=cg_dimer_freq, mode='lines', name='CG Dimer Frequency'))
+            fig_dimer_line.add_trace(go.Scatter(y=at_dimer_freq, mode='lines', name='AT Dimer Frequency'))
+            fig_dimer_line.update_layout(title='Dimer Frequencies (CG and AT) per Window',
                                         xaxis_title='Window Index',
                                         yaxis_title='Frequency')
             st.plotly_chart(fig_dimer_line, use_container_width=True)
@@ -872,13 +872,13 @@ def main():
             )
             st.plotly_chart(fig, use_container_width=True)
 
-            # Plot GC dan TA frequency (dari freq)
-            fig_gc_ta = go.Figure()
-            fig_gc_ta.add_trace(go.Scatter(y=freq["GC"], mode='lines', name='GC Content'))
-            fig_gc_ta.add_trace(go.Scatter(y=freq["TA"], mode='lines', name='TA Frequency'))
-            fig_gc_ta.update_layout(title='GC Content and TA Frequency in Windows',
-                                    xaxis_title='Window Index', yaxis_title='Frequency')
-            st.plotly_chart(fig_gc_ta, use_container_width=True)
+            # # Plot CG dan AT frequency (dari freq)
+            # fig_cg_ta = go.Figure()
+            # fig_cg_ta.add_trace(go.Scatter(y=freq["CG"], mode='lines', name='CG Content'))
+            # fig_cg_ta.add_trace(go.Scatter(y=freq["AT"], mode='lines', name='AT Frequency'))
+            # fig_cg_ta.update_layout(title='CG Content and AT Frequency in Windows',
+            #                         xaxis_title='Window Index', yaxis_title='Frequency')
+            # st.plotly_chart(fig_cg_ta, use_container_width=True)
 
             # ======== Hitung semua frekuensi dimer matrix dengan step 1 ========
             windows2, dimer_freq_matrices = count_dimermat_slide1(window, genome_sequence)
@@ -897,22 +897,28 @@ def main():
             st.write(f"🪟 Dimer Frequency Matrix - Window {selected_window}")
             st.dataframe(matrix.style.format("{:.4f}"), use_container_width=True)
 
-            # ======== Plot GC + TA Dimer per window (line chart) ========
-            gc_dimer_freq = []
-            ta_dimer_freq = []
-            for mat in dimer_freq_matrices:
-                gc = mat.at['G', 'C'] if 'G' in mat.index and 'C' in mat.columns else 0
-                ta = mat.at['T', 'A'] if 'T' in mat.index and 'A' in mat.columns else 0
-                gc_dimer_freq.append(gc)
-                ta_dimer_freq.append(ta)
+            # ======== Plot CG + AT Dimer per window (line chart) ========
+            cg_dimer_freq = []
+            at_dimer_freq = []
+            x_indices = []
+            plot_step = st.number_input("Plot every Nth Window (Step Plot)", min_value=1, value=1000, step=1)
+
+            for i, mat in enumerate(dimer_freq_matrices):
+                if i % plot_step == 0:
+                    cg = mat.at['C', 'G'] if 'C' in mat.index and 'G' in mat.columns else 0
+                    at = mat.at['A', 'T'] if 'A' in mat.index and 'T' in mat.columns else 0
+                    cg_dimer_freq.append(cg)
+                    at_dimer_freq.append(at)
+                    x_indices.append(i)
 
             fig_dimer_line = go.Figure()
-            fig_dimer_line.add_trace(go.Scatter(y=gc_dimer_freq, mode='lines', name='GC Dimer Frequency'))
-            fig_dimer_line.add_trace(go.Scatter(y=ta_dimer_freq, mode='lines', name='TA Dimer Frequency'))
-            fig_dimer_line.update_layout(title='Dimer Frequencies (GC and TA) per Window',
+            fig_dimer_line.add_trace(go.Scatter(x=x_indices, y=cg_dimer_freq, mode='lines', name='CG Dimer Frequency'))
+            fig_dimer_line.add_trace(go.Scatter(x=x_indices, y=at_dimer_freq, mode='lines', name='AT Dimer Frequency'))
+            fig_dimer_line.update_layout(title='Dimer Frequencies (CG and AT) per Window (Step Plot)',
                                         xaxis_title='Window Index',
                                         yaxis_title='Frequency')
             st.plotly_chart(fig_dimer_line, use_container_width=True)
+
 
     elif selected_option == "Find Open Reading Frame":
         st.title("🧬Find Gene in the DNA Sequence🧬")
@@ -1028,8 +1034,8 @@ def main():
             st.subheader("📄 File Information")
             st.write(desc)
             st.write(f"Total Sequence Length: {len(genome_sequence)} bases")
-            # st.write("**🧬Complete Genome Sequence:**")
-            # st.write(genome_sequence)
+            st.write("**🧬Complete Genome Sequence:**")
+            st.write(genome_sequence)
 
             # Statistik urutan
             st.write("**🧪 Sequence Statistic:**")
@@ -2630,7 +2636,7 @@ def main():
                         })
                         # exon_ranges.append((start_idx, i - 1))
                         # Print per region
-                        line = f"Start[{start_idx}] End[{i-1}] Length[{len(current)}]: {''.join(current)}"
+                        line = f"Start[{start_idx}] End[{i}] Length[{len(current)}]: {''.join(current)}"
                         st.write(line)
                         output_txt.write(line + "\n")
 
@@ -2647,7 +2653,7 @@ def main():
                 })
                 # exon_ranges.append((start_idx, len(path_state) - 1))
                 # Print terakhir
-                line = f"Start[{start_idx}] End[{len(path_state)-1}] Length[{len(current)}]: {''.join(current)}"
+                line = f"Start[{start_idx}] End[{len(path_state)}] Length[{len(current)}]: {''.join(current)}"
                 st.write(line)
                 output_txt.write(line + "\n")
             # if exon_segments:
